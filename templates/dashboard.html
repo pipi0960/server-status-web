@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>服务器状态面板</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>服务器状态面板</h1>
+    <div>
+      <span>用户：{{ username }}</span>
+      <a href="/logout">退出</a>
+    </div>
+  </header>
+
+  <main class="grid" id="grid">
+    <section class="card"><h2>状态</h2><div id="source">来源: -</div><div id="warning">告警: 无</div></section>
+    <section class="card"><h2>主机</h2><div id="hostname">-</div><div id="uptime">-</div></section>
+    <section class="card"><h2>CPU</h2><div id="cpu">-</div><div id="load">-</div></section>
+    <section class="card"><h2>内存</h2><div id="memory">-</div><div id="swap">-</div></section>
+    <section class="card"><h2>磁盘</h2><div id="disk">-</div></section>
+    <section class="card"><h2>网络</h2><div id="net">-</div></section>
+  </main>
+
+  <script>
+    async function refresh() {
+      try {
+        const res = await fetch('/api/status', {cache: 'no-store'});
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 302) location.href = '/login';
+          return;
+        }
+        const d = await res.json();
+        document.getElementById('source').textContent = `来源: ${d.source || 'unknown'}`;
+        document.getElementById('warning').textContent = d.warning ? `告警: ${d.warning}` : '告警: 无';
+        document.getElementById('hostname').textContent = '主机名: ' + d.hostname;
+        document.getElementById('uptime').textContent = '运行时间: ' + d.uptime;
+        document.getElementById('cpu').textContent = `使用率: ${d.cpu.percent}% | 核心: ${d.cpu.cores_logical} (逻辑)`;
+        document.getElementById('load').textContent = `负载: ${d.cpu.loadavg.join(' / ')}`;
+        document.getElementById('memory').textContent = `内存: ${d.memory.used} / ${d.memory.total} (${d.memory.percent}%)`;
+        document.getElementById('swap').textContent = `交换: ${d.memory.swap_used} / ${d.memory.swap_total} (${d.memory.swap_percent}%)`;
+        document.getElementById('disk').textContent = `系统盘: ${d.disk.used} / ${d.disk.total} (${d.disk.percent}%), 可用 ${d.disk.free}`;
+        document.getElementById('net').textContent = `上行: ${d.network.bytes_sent} | 下行: ${d.network.bytes_recv}`;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    refresh();
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

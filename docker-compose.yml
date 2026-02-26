@@ -1,0 +1,13 @@
+services:
+  status-web:
+    build: .
+    container_name: status-web
+    restart: unless-stopped
+    ports:
+      - "18080:8080"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+      HOST_METRICS_URL: ${HOST_METRICS_URL:-}
+      HOST_METRICS_TOKEN: ${HOST_METRICS_TOKEN:-}

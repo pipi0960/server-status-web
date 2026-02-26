@@ -1,0 +1,17 @@
+# Logs
+*.log
+*.out
+*.err
+
+# Temp files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.pid
+
+# Local secrets
+.env
+
+# OS noise
+.DS_Store
